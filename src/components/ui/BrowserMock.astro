@@ -1,0 +1,64 @@
+---
+/**
+ * A stylised miniature website inside a browser frame. Used for portfolio
+ * thumbnails and the hero illustration — not a screenshot of a real site.
+ */
+interface Props {
+  palette: [string, string, string]; // [background, ink, accent]
+  title: string;
+  url?: string;
+  class?: string;
+  layout?: 'split' | 'centered';
+}
+const { palette, title, url = 'preview', class: className = '', layout = 'split' } = Astro.props;
+const [bg, ink, accent] = palette;
+---
+
+<div
+  class:list={['overflow-hidden rounded-[14px] bg-white shadow-[0_30px_60px_-30px_rgba(20,18,12,.45),0_0_0_1px_rgba(20,18,12,.08)]', className]}
+  aria-hidden="true"
+  data-decorative
+>
+  <div class="flex items-center gap-1.5 border-b border-black/5 bg-[#f3f2ef] px-3 py-2">
+    <span class="size-2 rounded-full bg-[#e5e2dc]"></span>
+    <span class="size-2 rounded-full bg-[#e5e2dc]"></span>
+    <span class="size-2 rounded-full bg-[#e5e2dc]"></span>
+    <span class="ml-2 truncate rounded-md bg-white px-2 py-0.5 font-sans text-[9px] text-black/45">{url}</span>
+  </div>
+  <div style={`background:${bg};color:${ink}`} class="p-4 sm:p-5">
+    <div class="mb-5 flex items-center justify-between">
+      <span class="font-display text-[11px] font-semibold tracking-tight">{title}</span>
+      <span class="flex gap-2">
+        <span class="h-1 w-5 rounded-full opacity-30" style={`background:${ink}`}></span>
+        <span class="h-1 w-5 rounded-full opacity-30" style={`background:${ink}`}></span>
+        <span class="h-1 w-5 rounded-full" style={`background:${accent}`}></span>
+      </span>
+    </div>
+    {
+      layout === 'split' ? (
+        <div class="grid grid-cols-5 items-center gap-3">
+          <div class="col-span-3 space-y-1.5">
+            <span class="block h-2.5 w-[90%] rounded-sm" style={`background:${ink}`} />
+            <span class="block h-2.5 w-[65%] rounded-sm" style={`background:${ink}`} />
+            <span class="mt-2.5 block h-1 w-[80%] rounded-full opacity-30" style={`background:${ink}`} />
+            <span class="block h-1 w-[70%] rounded-full opacity-30" style={`background:${ink}`} />
+            <span class="mt-3 inline-block h-3.5 w-12 rounded-[3px]" style={`background:${accent}`} />
+          </div>
+          <div class="col-span-2 aspect-[4/5] rounded-md" style={`background:linear-gradient(150deg, ${accent} 0%, ${ink} 120%)`} />
+        </div>
+      ) : (
+        <div class="flex flex-col items-center gap-1.5 py-2 text-center">
+          <span class="block h-2.5 w-[70%] rounded-sm" style={`background:${ink}`} />
+          <span class="block h-2.5 w-[50%] rounded-sm" style={`background:${ink}`} />
+          <span class="mt-2 block h-1 w-[60%] rounded-full opacity-30" style={`background:${ink}`} />
+          <span class="mt-2.5 inline-block h-3.5 w-12 rounded-[3px]" style={`background:${accent}`} />
+        </div>
+      )
+    }
+    <div class="mt-5 grid grid-cols-3 gap-2">
+      <span class="h-9 rounded-[4px] opacity-[.08]" style={`background:${ink}`}></span>
+      <span class="h-9 rounded-[4px] opacity-[.08]" style={`background:${ink}`}></span>
+      <span class="h-9 rounded-[4px] opacity-[.08]" style={`background:${ink}`}></span>
+    </div>
+  </div>
+</div>

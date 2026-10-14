@@ -1,0 +1,44 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  block: BlockOf<'faq'>;
+}
+const { block } = Astro.props;
+const hid = block.id ? `${block.id}-title` : undefined;
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid}>
+  <div class="container-site grid gap-12 lg:grid-cols-12">
+    <header class="reveal lg:col-span-4">
+      <div class="lg:sticky lg:top-28">
+        {block.eyebrow && <p class="eyebrow mb-5">{block.eyebrow}</p>}
+        {block.heading && <h2 id={hid} class="text-4xl leading-[1.08] md:text-5xl">{block.heading}</h2>}
+        {block.intro && <p class="mt-5 text-lg leading-relaxed text-ink-soft">{block.intro}</p>}
+      </div>
+    </header>
+    <div class="lg:col-span-8">
+      <ul class="divide-y divide-line border-y border-line">
+        {
+          block.items.map((item) => (
+            <li>
+              <details class="group">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-6 text-left text-lg font-medium md:text-xl [&::-webkit-details-marker]:hidden">
+                  <span>{item.question}</span>
+                  <span class="grid size-9 shrink-0 place-items-center rounded-full ring-1 ring-line transition group-open:rotate-45 group-open:bg-ink group-open:text-bg">
+                    <Icon name="plus" size={16} />
+                  </span>
+                </summary>
+                <div class="max-w-2xl pb-7 pr-12 leading-relaxed text-ink-soft">
+                  <p>{item.answer}</p>
+                </div>
+              </details>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</Section>

@@ -1,0 +1,49 @@
+---
+/**
+ * Maps each content block to its component. To add a new section type:
+ * 1. add its schema in src/schema/site.ts, 2. create the component in
+ * ./blocks, 3. register it below.
+ */
+import type { Block, Site } from '@/schema/site';
+import Hero from './blocks/Hero.astro';
+import Steps from './blocks/Steps.astro';
+import Features from './blocks/Features.astro';
+import Split from './blocks/Split.astro';
+import Services from './blocks/Services.astro';
+import Gallery from './blocks/Gallery.astro';
+import Portfolio from './blocks/Portfolio.astro';
+import Testimonials from './blocks/Testimonials.astro';
+import Pricing from './blocks/Pricing.astro';
+import Faq from './blocks/Faq.astro';
+import Cta from './blocks/Cta.astro';
+import Hours from './blocks/Hours.astro';
+import Contact from './blocks/Contact.astro';
+import Text from './blocks/Text.astro';
+
+interface Props {
+  sections: Block[];
+  site: Site;
+}
+const { sections, site } = Astro.props;
+---
+
+{
+  sections.map((block) => {
+    switch (block.type) {
+      case 'hero': return <Hero block={block} />;
+      case 'steps': return <Steps block={block} />;
+      case 'features': return <Features block={block} />;
+      case 'split': return <Split block={block} />;
+      case 'services': return <Services block={block} />;
+      case 'gallery': return <Gallery block={block} />;
+      case 'portfolio': return <Portfolio block={block} />;
+      case 'testimonials': return <Testimonials block={block} />;
+      case 'pricing': return <Pricing block={block} />;
+      case 'faq': return <Faq block={block} />;
+      case 'cta': return <Cta block={block} />;
+      case 'hours': return <Hours block={block} />;
+      case 'contact': return <Contact block={block} fallbackEmail={site.business.email} />;
+      case 'text': return <Text block={block} />;
+    }
+  })
+}

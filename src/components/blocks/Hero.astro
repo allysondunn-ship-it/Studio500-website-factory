@@ -1,0 +1,151 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import Picture from '../ui/Picture.astro';
+import BrowserMock from '../ui/BrowserMock.astro';
+
+interface Props {
+  block: BlockOf<'hero'>;
+}
+const { block } = Astro.props;
+const { variant, heading, headingAccent } = block;
+
+// Split the heading so the accent phrase can be styled.
+let before = heading;
+let accent = '';
+let after = '';
+if (headingAccent && heading.includes(headingAccent)) {
+  const i = heading.indexOf(headingAccent);
+  before = heading.slice(0, i);
+  accent = headingAccent;
+  after = heading.slice(i + headingAccent.length);
+}
+---
+
+<section id={block.id} class:list={[`tone-${block.tone}`, 'grain relative overflow-hidden bg-bg text-ink']}>
+  {
+    variant === 'editorial' && (
+      <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
+        <div class="absolute -top-40 right-[-10%] h-[38rem] w-[38rem] rounded-full bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--c-accent)_22%,transparent),transparent)]" />
+        <div class="absolute bottom-0 left-0 right-0 h-px bg-line" />
+      </div>
+    )
+  }
+
+  <div
+    class:list={[
+      'container-site',
+      variant === 'editorial' ? 'pt-14 pb-20 md:pt-24 md:pb-28' : 'py-16 md:py-24',
+    ]}
+  >
+    <div
+      class:list={[
+        'grid items-center gap-12',
+        variant === 'centered' ? 'mx-auto max-w-3xl text-center' : 'lg:grid-cols-12 lg:gap-10',
+      ]}
+    >
+      <div class:list={[variant !== 'centered' && 'lg:col-span-7']}>
+        {block.eyebrow && <p class:list={['eyebrow mb-7', variant === 'centered' && 'justify-center']}>{block.eyebrow}</p>}
+        <h1
+          class:list={[
+            'font-normal leading-[0.98] tracking-[-0.035em]',
+            variant === 'editorial' ? 'text-[2.9rem] sm:text-6xl md:text-7xl xl:text-[5.6rem]' : 'text-[2.6rem] sm:text-6xl md:text-[4.2rem]',
+          ]}
+        >
+          {before}
+          {accent && <span class="accent-word">{accent}</span>}
+          {after}
+        </h1>
+        {block.intro && (
+          <p
+            class:list={[
+              'mt-7 max-w-xl text-lg leading-relaxed text-ink-soft md:text-xl',
+              variant === 'centered' && 'mx-auto',
+            ]}
+          >
+            {block.intro}
+          </p>
+        )}
+        <div class:list={['mt-9 flex flex-wrap items-center gap-3', variant === 'centered' && 'justify-center']}>
+          <Button href={block.primaryCta.href} size="lg" arrow>
+            {block.primaryCta.label}
+          </Button>
+          {block.secondaryCta && (
+            <Button href={block.secondaryCta.href} size="lg" variant="secondary">
+              {block.secondaryCta.label}
+            </Button>
+          )}
+        </div>
+        {block.highlights.length > 0 && (
+          <ul
+            class:list={[
+              'mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-ink-soft',
+              variant === 'centered' && 'justify-center',
+            ]}
+          >
+            {block.highlights.map((h) => (
+              <li class="flex items-center gap-2">
+                <span class="grid size-5 place-items-center rounded-full bg-accent text-accent-ink">
+                  <Icon name="check" size={12} />
+                </span>
+                {h}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {
+        variant === 'editorial' && (
+          <div class="relative lg:col-span-5">
+            <div class="relative mx-auto max-w-md lg:ml-auto">
+              <BrowserMock
+                palette={['#f6f8fa', '#0f1d2b', '#f4b400']}
+                title="Your Business"
+                url="preview.yourbusiness.com"
+                class="relative z-10 -rotate-[2.5deg] transition-transform duration-500 hover:rotate-0"
+              />
+              <BrowserMock
+                palette={['#f5efe2', '#26301c', '#8f2d1f']}
+                title="Your Business"
+                layout="centered"
+                url="preview.yourbusiness.com"
+                class="absolute -top-8 -right-4 hidden w-[78%] rotate-[4deg] opacity-90 sm:block"
+              />
+              {block.badge && (
+                <div class="absolute -bottom-10 left-3 z-20 rounded-card bg-ink px-6 py-5 text-bg shadow-2xl sm:-left-10 lg:-left-10">
+                  <p class="text-[0.7rem] font-semibold uppercase tracking-[0.16em] opacity-70">{block.badge.label}</p>
+                  <p class="font-display text-5xl leading-none tracking-tight">{block.badge.value}</p>
+                  {block.badge.note && <p class="mt-2 max-w-[13rem] text-xs leading-snug opacity-75">{block.badge.note}</p>}
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      }
+
+      {
+        variant !== 'editorial' && block.image && (
+          <div class:list={[variant === 'split' ? 'lg:col-span-5' : 'mt-4']}>
+            <div class="relative">
+              <Picture
+                image={block.image}
+                ratio={variant === 'split' ? '4/5' : '16/9'}
+                eager
+                class="rounded-card shadow-[0_40px_80px_-40px_rgba(0,0,0,.35)]"
+              />
+              {block.badge && (
+                <div class="absolute -bottom-6 left-6 rounded-card bg-surface px-5 py-4 text-left text-ink shadow-xl ring-1 ring-line">
+                  <p class="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">{block.badge.label}</p>
+                  <p class="font-display text-2xl">{block.badge.value}</p>
+                  {block.badge.note && <p class="text-xs text-ink-soft">{block.badge.note}</p>}
+                </div>
+              )}
+            </div>
+          </div>
+        )
+      }
+    </div>
+  </div>
+</section>

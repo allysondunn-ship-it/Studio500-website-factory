@@ -1,0 +1,150 @@
+---
+/**
+ * Accessible contact / request form.
+ *
+ * Submissions go to PUBLIC_FORM_ENDPOINT (a form service such as Formspree or
+ * Basin). If that isn't configured, the form still validates but tells the
+ * visitor honestly that it isn't connected yet and offers the email address.
+ */
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  block: BlockOf<'contact'>;
+  /** Fallback email shown if the form cannot be sent. */
+  fallbackEmail?: string;
+}
+const { block, fallbackEmail } = Astro.props;
+const endpoint = (import.meta.env.PUBLIC_FORM_ENDPOINT ?? '').trim();
+const hid = block.id ? `${block.id}-title` : 'contact-title';
+const fid = `form-${block.formName}`;
+const inputBase =
+  'mt-2 block w-full rounded-ui border-0 bg-bg px-4 py-3 text-ink ring-1 ring-inset ring-line placeholder:text-ink-soft/60 transition focus:ring-2 focus:ring-accent focus:outline-none aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-[#c0262d]';
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid}>
+  <div class="container-site grid gap-14 lg:grid-cols-12">
+    <div class="reveal lg:col-span-5">
+      {block.eyebrow && <p class="eyebrow mb-5">{block.eyebrow}</p>}
+      <h2 id={hid} class="text-4xl leading-[1.05] md:text-[3.4rem]">{block.heading}</h2>
+      {block.intro && <p class="mt-6 text-lg leading-relaxed text-ink-soft">{block.intro}</p>}
+      {
+        block.details.length > 0 && (
+          <ul class="mt-10 space-y-5">
+            {block.details.map((d) => (
+              <li class="flex items-start gap-4">
+                <span class="grid size-11 shrink-0 place-items-center rounded-full bg-surface text-accent-text ring-1 ring-line">
+                  <Icon name={d.icon} size={19} />
+                </span>
+                <span>
+                  <span class="block text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">{d.label}</span>
+                  {d.href ? (
+                    <a href={d.href} class="text-lg underline-offset-4 hover:underline">{d.value}</a>
+                  ) : (
+                    <span class="text-lg">{d.value}</span>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    <div class="lg:col-span-7">
+      <div class="rounded-card bg-surface p-6 ring-1 ring-line sm:p-10">
+        <form
+          id={fid}
+          class="s5-form"
+          action={endpoint || undefined}
+          method="post"
+          novalidate
+          data-endpoint={endpoint}
+          data-fallback-email={fallbackEmail}
+          aria-describedby={`${fid}-required`}
+        >
+          <input type="hidden" name="form" value={block.formName} />
+          <p id={`${fid}-required`} class="mb-6 text-sm text-ink-soft">
+            Fields marked <span aria-hidden="true" class="text-accent-text">*</span><span class="sr-only">with an asterisk</span> are required.
+          </p>
+
+          <div class="grid gap-x-5 gap-y-6 sm:grid-cols-2">
+            {
+              block.fields.map((f) => {
+                const id = `${fid}-${f.name}`;
+                const describedBy = [f.hint && `${id}-hint`, `${id}-error`].filter(Boolean).join(' ');
+                const common = {
+                  id,
+                  name: f.name,
+                  required: f.required,
+                  autocomplete: f.autocomplete,
+                  'aria-describedby': describedBy,
+                  'aria-invalid': 'false' as const,
+                };
+                return (
+                  <div class:list={[f.width === 'full' && 'sm:col-span-2']}>
+                    <label for={id} class="text-sm font-medium">
+                      {f.label}
+                      {f.required && <span aria-hidden="true" class="text-accent-text"> *</span>}
+                    </label>
+                    {f.type === 'textarea' ? (
+                      <textarea {...common} rows="5" placeholder={f.placeholder} class:list={[inputBase, 'resize-y']} />
+                    ) : f.type === 'select' ? (
+                      <select {...common} class:list={[inputBase, 'appearance-none bg-[length:16px] bg-[right_1rem_center] bg-no-repeat pr-10']} style="background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E&quot;)">
+                        <option value="">Select an option</option>
+                        {f.options?.map((o) => <option value={o}>{o}</option>)}
+                      </select>
+                    ) : (
+                      <input
+                        {...common}
+                        type={f.type}
+                        placeholder={f.placeholder}
+                        inputmode={f.type === 'tel' ? 'tel' : f.type === 'email' ? 'email' : f.type === 'url' ? 'url' : undefined}
+                        class={inputBase}
+                      />
+                    )}
+                    {f.hint && <p id={`${id}-hint`} class="mt-1.5 text-xs text-ink-soft">{f.hint}</p>}
+                    <p id={`${id}-error`} class="mt-1.5 hidden items-center gap-1.5 text-sm font-medium text-[#c0262d]" data-error-for={f.name} />
+                  </div>
+                );
+              })
+            }
+          </div>
+
+          <!-- Spam trap: hidden from people, often filled in by bots. -->
+          <div class="absolute -left-[9999px]" aria-hidden="true">
+            <label for={`${fid}-gotcha`}>Leave this field empty</label>
+            <input id={`${fid}-gotcha`} type="text" name="_gotcha" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            {block.privacyNote && <p class="max-w-sm text-xs leading-relaxed text-ink-soft">{block.privacyNote}</p>}
+            <button
+              type="submit"
+              class="inline-flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-ui bg-accent px-7 font-medium text-accent-ink transition hover:brightness-110 disabled:cursor-wait disabled:opacity-70"
+            >
+              <span data-label>{block.submitLabel}</span>
+              <Icon name="arrow-right" size={17} />
+            </button>
+          </div>
+
+          <div data-status role="status" aria-live="polite" class="mt-6 empty:hidden"></div>
+        </form>
+
+        <div data-success hidden tabindex="-1" class="py-10 text-center outline-none">
+          <span class="mx-auto mb-6 grid size-14 place-items-center rounded-full bg-accent text-accent-ink">
+            <Icon name="check" size={26} />
+          </span>
+          <h3 class="text-3xl">{block.successTitle}</h3>
+          <p class="mx-auto mt-3 max-w-md leading-relaxed text-ink-soft">{block.successMessage}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Section>
+
+<script>
+  import { initForms } from '@/scripts/forms';
+  initForms();
+</script>

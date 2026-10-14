@@ -1,0 +1,62 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  block: BlockOf<'hours'>;
+}
+const { block } = Astro.props;
+const hid = block.id ? `${block.id}-title` : 'hours-title';
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid}>
+  <div class="container-site grid gap-12 lg:grid-cols-2 lg:gap-20">
+    <div class="reveal">
+      {block.eyebrow && <p class="eyebrow mb-5">{block.eyebrow}</p>}
+      <h2 id={hid} class="text-4xl leading-[1.08] md:text-5xl">{block.heading ?? 'Hours'}</h2>
+      {block.intro && <p class="mt-5 text-lg leading-relaxed text-ink-soft">{block.intro}</p>}
+      <dl class="mt-10 space-y-5">
+        {
+          block.address && (
+            <div class="flex gap-4">
+              <dt><Icon name="map-pin" class="mt-0.5 text-accent-text" /><span class="sr-only">Address</span></dt>
+              <dd>
+                {block.address}
+                {block.mapLink && (
+                  <a href={block.mapLink} class="ml-2 text-sm underline underline-offset-4" target="_blank" rel="noopener noreferrer">
+                    Get directions
+                  </a>
+                )}
+              </dd>
+            </div>
+          )
+        }
+        {
+          block.phone && (
+            <div class="flex gap-4">
+              <dt><Icon name="phone" class="mt-0.5 text-accent-text" /><span class="sr-only">Phone</span></dt>
+              <dd><a href={`tel:${block.phone.replace(/[^\d+]/g, '')}`} class="underline-offset-4 hover:underline">{block.phone}</a></dd>
+            </div>
+          )
+        }
+      </dl>
+    </div>
+    <div class="reveal rounded-card bg-surface p-8 ring-1 ring-line md:p-10">
+      <table class="w-full text-left">
+        <caption class="sr-only">Opening hours</caption>
+        <tbody class="divide-y divide-line">
+          {
+            block.hours.map((h) => (
+              <tr>
+                <th scope="row" class="py-3.5 font-medium">{h.day}</th>
+                <td class="py-3.5 text-right text-ink-soft">{h.hours}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      {block.note && <p class="mt-6 text-sm text-ink-soft">{block.note}</p>}
+    </div>
+  </div>
+</Section>

@@ -1,0 +1,125 @@
+---
+import type { Site } from '@/schema/site';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import Wordmark from './Wordmark.astro';
+
+interface Props {
+  site: Site;
+  homeHref: string;
+}
+const { site, homeHref } = Astro.props;
+const { links, cta } = site.navigation;
+---
+
+{
+  site.banner && (
+    <div class="tone-inverse bg-bg px-4 py-2.5 text-center text-[0.8rem] text-ink">
+      {site.banner.text}
+      {site.banner.link && (
+        <a href={site.banner.link.href} class="ml-2 font-semibold underline underline-offset-4">
+          {site.banner.link.label}
+        </a>
+      )}
+    </div>
+  )
+}
+
+<header class="s5-header sticky top-0 z-50 border-b border-transparent transition-colors duration-300" data-header>
+  <a href="#main" class="sr-only z-[60] rounded-ui bg-accent px-4 py-2 text-accent-ink focus:not-sr-only focus:absolute focus:top-3 focus:left-3">
+    Skip to content
+  </a>
+  <div class="container-site flex h-[4.5rem] items-center justify-between gap-6">
+    <a href={homeHref} class="relative z-10 shrink-0" aria-label={`${site.business.name} — home`}>
+      <Wordmark name={site.business.name} />
+    </a>
+
+    <nav aria-label="Main" class="hidden lg:block">
+      <ul class="flex items-center gap-1">
+        {
+          links.map((l) => (
+            <li>
+              <a href={l.href} class="rounded-full px-3.5 py-2 text-[0.92rem] text-ink-soft transition hover:bg-ink/5 hover:text-ink">
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      {cta && <span class="hidden sm:block"><Button href={cta.href}>{cta.label}</Button></span>}
+      <button
+        type="button"
+        class="grid size-11 place-items-center rounded-full ring-1 ring-line lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <span class="sr-only" data-menu-label>Open menu</span>
+        <Icon name="menu" size={20} class="menu-open-icon" />
+        <Icon name="x" size={20} class="menu-close-icon hidden" />
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden border-t border-line bg-bg lg:hidden" data-menu>
+    <nav aria-label="Mobile" class="container-site py-6">
+      <ul class="divide-y divide-line">
+        {
+          links.map((l) => (
+            <li>
+              <a href={l.href} class="flex items-center justify-between py-4 font-display text-2xl" data-menu-link>
+                {l.label}
+                <Icon name="arrow-right" size={18} class="text-ink-soft" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      {cta && <Button href={cta.href} size="lg" class="mt-6 w-full" arrow>{cta.label}</Button>}
+    </nav>
+  </div>
+</header>
+
+<style>
+  .s5-header {
+    background: color-mix(in oklab, var(--c-bg) 82%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  }
+  .s5-header.is-scrolled {
+    border-color: var(--c-border);
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const label = document.querySelector<HTMLElement>('[data-menu-label]');
+
+  const onScroll = () => header?.classList.toggle('is-scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  function setOpen(open: boolean) {
+    if (!toggle || !menu) return;
+    toggle.setAttribute('aria-expanded', String(open));
+    menu.classList.toggle('hidden', !open);
+    toggle.querySelector('.menu-open-icon')?.classList.toggle('hidden', open);
+    toggle.querySelector('.menu-close-icon')?.classList.toggle('hidden', !open);
+    if (label) label.textContent = open ? 'Close menu' : 'Open menu';
+  }
+
+  toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => e.matches && setOpen(false));
+</script>

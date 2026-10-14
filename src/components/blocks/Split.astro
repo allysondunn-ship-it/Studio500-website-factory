@@ -1,0 +1,44 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import Picture from '../ui/Picture.astro';
+import Icon from '../ui/Icon.astro';
+import Button from '../ui/Button.astro';
+
+interface Props {
+  block: BlockOf<'split'>;
+}
+const { block } = Astro.props;
+const hid = block.id ? `${block.id}-title` : undefined;
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid}>
+  <div class="container-site grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+    <div class:list={['reveal', block.imageSide === 'left' && 'lg:order-2']}>
+      {block.eyebrow && <p class="eyebrow mb-5">{block.eyebrow}</p>}
+      {block.heading && <h2 id={hid} class="text-4xl leading-[1.08] md:text-5xl">{block.heading}</h2>}
+      {block.intro && <p class="mt-6 text-lg leading-relaxed text-ink-soft">{block.intro}</p>}
+      {block.body.map((p) => <p class="mt-4 leading-relaxed text-ink-soft">{p}</p>)}
+      {
+        block.bullets.length > 0 && (
+          <ul class="mt-8 space-y-3">
+            {block.bullets.map((b) => (
+              <li class="flex gap-3">
+                <Icon name="check" size={18} class="mt-1 shrink-0 text-accent-text" />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+      {block.cta && (
+        <div class="mt-9">
+          <Button href={block.cta.href} arrow>{block.cta.label}</Button>
+        </div>
+      )}
+    </div>
+    <div class="reveal">
+      <Picture image={block.image} ratio="5/4" class="rounded-card" />
+    </div>
+  </div>
+</Section>

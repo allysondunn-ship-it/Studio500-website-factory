@@ -1,0 +1,32 @@
+---
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import { getSite } from '@/lib/cms';
+import { pricing } from '@/config/pricing';
+
+export async function getStaticPaths() {
+  const site = await getSite('studio500');
+  return site.pages.map((page) => ({ params: { slug: page.slug || undefined }, props: { page } }));
+}
+
+const site = await getSite('studio500');
+const { page } = Astro.props;
+
+const jsonLd =
+  page.slug === ''
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ProfessionalService',
+        name: site.business.name,
+        description: site.seo.defaultDescription,
+        url: Astro.site?.href,
+        email: site.business.email,
+        priceRange: `From $${pricing.setupFee}`,
+        areaServed: 'US',
+      }
+    : undefined;
+---
+
+<SiteLayout site={site} page={page} jsonLd={jsonLd}>
+  <SectionRenderer sections={page.sections} site={site} />
+</SiteLayout>

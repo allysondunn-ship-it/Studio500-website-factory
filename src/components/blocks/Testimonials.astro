@@ -1,0 +1,35 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+
+interface Props {
+  block: BlockOf<'testimonials'>;
+}
+const { block } = Astro.props;
+const hid = block.id ? `${block.id}-title` : undefined;
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid}>
+  <div class="container-site">
+    <SectionHeader id={hid} eyebrow={block.eyebrow} heading={block.heading} intro={block.intro} />
+    <ul class="grid gap-6 md:grid-cols-3">
+      {
+        block.items.map((t) => (
+          <li class="reveal flex flex-col rounded-card bg-surface p-8 ring-1 ring-line">
+            {t.placeholder && (
+              <p class="mb-5 self-start rounded-full bg-muted px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                Placeholder review
+              </p>
+            )}
+            <blockquote class="font-display text-xl leading-snug">“{t.quote}”</blockquote>
+            <p class="mt-auto pt-8 text-sm">
+              <span class="font-semibold">{t.name}</span>
+              {t.detail && <span class="text-ink-soft"> · {t.detail}</span>}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Section>

@@ -1,0 +1,17 @@
+---
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import Button from '@/components/ui/Button.astro';
+import { getSite } from '@/lib/cms';
+
+const site = await getSite('studio500');
+const page = { slug: '404', title: 'Page not found', description: 'This page could not be found.', noindex: true, sections: [] };
+---
+
+<SiteLayout site={site} page={page}>
+  <section class="container-site flex min-h-[60vh] flex-col items-start justify-center py-24">
+    <p class="eyebrow mb-5">Error 404</p>
+    <h1 class="text-5xl md:text-7xl">This page has moved on.</h1>
+    <p class="mt-6 max-w-lg text-lg text-ink-soft">The page you’re looking for doesn’t exist. Let’s get you back on track.</p>
+    <div class="mt-9"><Button href="/" arrow>Back to home</Button></div>
+  </section>
+</SiteLayout>

@@ -1,0 +1,38 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  block: BlockOf<'steps'>;
+}
+const { block } = Astro.props;
+const hid = block.id ? `${block.id}-title` : undefined;
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid}>
+  <div class="container-site">
+    <SectionHeader id={hid} eyebrow={block.eyebrow} heading={block.heading} intro={block.intro} align="split" />
+    <ol class="grid gap-px overflow-hidden rounded-card bg-line ring-1 ring-line md:grid-cols-3">
+      {
+        block.steps.map((step, i) => (
+          <li class="reveal group relative flex flex-col bg-bg p-8 md:p-10" style={`transition-delay:${i * 90}ms`}>
+            <div class="mb-8 flex items-start md:mb-14 justify-between">
+              <span aria-hidden="true" class="font-display text-6xl font-light leading-none text-ink-soft transition-colors duration-300 group-hover:text-accent-text md:text-7xl">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              {step.icon && (
+                <span class="grid size-11 place-items-center rounded-full ring-1 ring-line text-ink">
+                  <Icon name={step.icon} />
+                </span>
+              )}
+            </div>
+            <h3 class="text-2xl md:text-[1.7rem]">{step.title}</h3>
+            <p class="mt-3 leading-relaxed text-ink-soft">{step.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</Section>

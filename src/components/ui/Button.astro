@@ -1,0 +1,34 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'md' | 'lg';
+  arrow?: boolean;
+  class?: string;
+}
+const { href, variant = 'primary', size = 'md', arrow = false, class: className = '' } = Astro.props;
+
+const variants = {
+  primary: 'bg-accent text-accent-ink hover:brightness-110 shadow-[0_1px_0_rgba(255,255,255,.25)_inset,0_8px_24px_-12px_var(--c-accent)]',
+  secondary: 'bg-transparent text-ink ring-1 ring-inset ring-line hover:ring-ink hover:bg-surface',
+  ghost: 'text-ink underline-offset-4 hover:underline px-0!',
+};
+const sizes = { md: 'h-11 px-5 text-[0.95rem]', lg: 'h-13 px-7 text-base' };
+const isExternal = /^https?:\/\//.test(href);
+---
+
+<a
+  href={href}
+  class:list={[
+    'group inline-flex items-center justify-center gap-2 rounded-ui font-medium tracking-[-0.01em] transition duration-200 whitespace-nowrap',
+    variants[variant],
+    sizes[size],
+    className,
+  ]}
+  {...isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+>
+  <slot />
+  {arrow && <Icon name="arrow-right" size={17} class="transition-transform duration-200 group-hover:translate-x-0.5" />}
+</a>

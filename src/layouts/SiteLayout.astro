@@ -1,0 +1,91 @@
+---
+/**
+ * The page shell shared by every site: SEO metadata, theme variables, fonts,
+ * header and footer. Pages only supply content.
+ */
+import '@fontsource-variable/fraunces/opsz.css';
+import '@fontsource-variable/fraunces/opsz-italic.css';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/playfair-display';
+import '@fontsource-variable/playfair-display/wght-italic.css';
+import '@fontsource-variable/manrope';
+import '@/styles/global.css';
+
+import type { Site, Page } from '@/schema/site';
+import { themeToCss } from '@/lib/theme';
+import Header from '@/components/layout/Header.astro';
+import Footer from '@/components/layout/Footer.astro';
+
+interface Props {
+  site: Site;
+  page: Page;
+  /** Base path of this site, e.g. "/" or "/samples/harbor-plumbing/". */
+  basePath?: string;
+  jsonLd?: Record<string, unknown>;
+}
+const { site, page, basePath = '/', jsonLd } = Astro.props;
+
+const title = page.slug === '' ? page.title : site.seo.titleTemplate.replace('%s', page.title);
+const description = page.description || site.seo.defaultDescription;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(site.seo.ogImage ?? '/og-image.png', Astro.site);
+const themeCss = themeToCss(site.theme);
+---
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {page.noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content={site.theme.colors.background} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.business.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+    <style set:html={themeCss}></style>
+    <script is:inline>
+      document.documentElement.classList.replace('no-js', 'js');
+    </script>
+  </head>
+  <body id="top" class="min-h-screen">
+    <Header site={site} homeHref={basePath} />
+    <main id="main" tabindex="-1" class="outline-none">
+      <slot />
+    </main>
+    <Footer site={site} />
+
+    <script>
+      // Reveal sections as they scroll into view.
+      const items = document.querySelectorAll('.reveal');
+      if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('is-visible');
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        );
+        items.forEach((el) => io.observe(el));
+      } else {
+        items.forEach((el) => el.classList.add('is-visible'));
+      }
+    </script>
+  </body>
+</html>

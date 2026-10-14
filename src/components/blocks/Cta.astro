@@ -1,0 +1,25 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import Button from '../ui/Button.astro';
+
+interface Props {
+  block: BlockOf<'cta'>;
+}
+const { block } = Astro.props;
+const hid = block.id ? `${block.id}-title` : 'cta-title';
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid} class="grain relative overflow-hidden">
+  <div class="container-site">
+    <div class="reveal max-w-4xl">
+      {block.eyebrow && <p class="eyebrow mb-5">{block.eyebrow}</p>}
+      <h2 id={hid} class="text-[2.5rem] leading-[1.02] tracking-[-0.03em] sm:text-6xl md:text-7xl">{block.heading}</h2>
+      {block.body && <p class="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft">{block.body}</p>}
+      <div class="mt-10 flex flex-wrap gap-3">
+        <Button href={block.primaryCta.href} size="lg" arrow>{block.primaryCta.label}</Button>
+        {block.secondaryCta && <Button href={block.secondaryCta.href} size="lg" variant="secondary">{block.secondaryCta.label}</Button>}
+      </div>
+    </div>
+  </div>
+</Section>

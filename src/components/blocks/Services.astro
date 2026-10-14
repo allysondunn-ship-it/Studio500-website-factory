@@ -1,0 +1,40 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  block: BlockOf<'services'>;
+}
+const { block } = Astro.props;
+const hid = block.id ? `${block.id}-title` : undefined;
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid}>
+  <div class="container-site">
+    <SectionHeader id={hid} eyebrow={block.eyebrow} heading={block.heading} intro={block.intro} align="split" />
+    <ul class="divide-y divide-line border-y border-line">
+      {
+        block.items.map((s) => (
+          <li class="reveal grid gap-3 py-7 sm:grid-cols-12 sm:items-baseline sm:gap-8">
+            <div class="flex items-center gap-4 sm:col-span-5">
+              {s.icon && (
+                <span class="grid size-10 shrink-0 place-items-center rounded-ui bg-surface text-accent-text ring-1 ring-line">
+                  <Icon name={s.icon} size={19} />
+                </span>
+              )}
+              <h3 class="text-2xl">{s.name}</h3>
+            </div>
+            <p class="leading-relaxed text-ink-soft sm:col-span-5">{s.description}</p>
+            <div class="flex items-baseline gap-3 sm:col-span-2 sm:flex-col sm:items-end sm:gap-0 sm:text-right">
+              {s.price && <span class="font-display text-xl">{s.price}</span>}
+              {s.duration && <span class="text-sm text-ink-soft">{s.duration}</span>}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+    {block.note && <p class="mt-6 text-sm text-ink-soft">{block.note}</p>}
+  </div>
+</Section>

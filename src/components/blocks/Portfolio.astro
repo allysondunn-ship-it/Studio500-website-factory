@@ -1,0 +1,69 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import BrowserMock from '../ui/BrowserMock.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  block: BlockOf<'portfolio'>;
+}
+const { block } = Astro.props;
+const hid = block.id ? `${block.id}-title` : undefined;
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid}>
+  <div class="container-site">
+    <SectionHeader id={hid} eyebrow={block.eyebrow} heading={block.heading} intro={block.intro} align="split" />
+    <ul class="grid gap-6 sm:grid-cols-2">
+      {
+        block.items.map((item, i) => {
+          const Tag = item.href ? 'a' : 'div';
+          return (
+            <li class="reveal" style={`transition-delay:${(i % 2) * 90}ms`}>
+              <Tag
+                href={item.href}
+                class:list={[
+                  'group block h-full rounded-card bg-surface p-3 ring-1 ring-line transition duration-300',
+                  item.href && 'hover:-translate-y-1 hover:shadow-[0_30px_60px_-35px_rgba(0,0,0,.35)] hover:ring-ink/30',
+                ]}
+              >
+                <div
+                  class="relative overflow-hidden rounded-[calc(var(--r-lg)-6px)] p-6 sm:p-10"
+                  style={`background:linear-gradient(140deg, ${item.palette[0]}, color-mix(in oklab, ${item.palette[2]} 18%, ${item.palette[0]}))`}
+                >
+                  <BrowserMock
+                    palette={item.palette}
+                    title={item.title}
+                    class:list={[
+                      'transition-transform duration-500',
+                      item.href && 'group-hover:scale-[1.02]',
+                      item.status === 'coming-soon' && 'opacity-40 grayscale',
+                    ]}
+                  />
+                  <span class="absolute top-4 left-4 rounded-full bg-white/90 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#17150f] backdrop-blur">
+                    {item.status === 'sample' ? 'Sample concept' : 'Coming soon'}
+                  </span>
+                </div>
+                <div class="flex items-start justify-between gap-6 px-3 pt-5 pb-3">
+                  <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">{item.industry}</p>
+                    <h3 class="mt-1.5 text-2xl">{item.title}</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-ink-soft">{item.description}</p>
+                  </div>
+                  {item.href && (
+                    <span class="mt-1 grid size-10 shrink-0 place-items-center rounded-full ring-1 ring-line transition group-hover:bg-ink group-hover:text-bg">
+                      <Icon name="arrow-up-right" size={18} />
+                      <span class="sr-only">View sample</span>
+                    </span>
+                  )}
+                </div>
+              </Tag>
+            </li>
+          );
+        })
+      }
+    </ul>
+    {block.disclaimer && <p class="mt-8 max-w-3xl text-sm text-ink-soft">{block.disclaimer}</p>}
+  </div>
+</Section>

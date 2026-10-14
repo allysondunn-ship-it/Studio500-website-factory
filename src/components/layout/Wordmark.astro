@@ -1,0 +1,31 @@
+---
+/**
+ * Text logo. Studio500 gets its own mark; client sites use their business
+ * name in the display font until a real logo file is supplied.
+ */
+interface Props {
+  name: string;
+  size?: 'md' | 'xl';
+}
+const { name, size = 'md' } = Astro.props;
+const match = name.match(/^(.*?)(\d+)$/);
+---
+
+{
+  match ? (
+    <span class:list={['inline-flex items-center gap-2 font-display tracking-[-0.03em]', size === 'xl' ? 'text-[16vw] leading-none lg:text-[11rem]' : 'text-[1.45rem]']}>
+      {size === 'md' && (
+        <span class="grid size-7 place-items-center rounded-[7px] bg-ink text-[0.8rem] font-semibold tracking-normal text-bg" aria-hidden="true">
+          {match[2]!.charAt(0)}
+        </span>
+      )}
+      <span>
+        {match[1]}<span class="accent-word">{match[2]}</span>
+      </span>
+    </span>
+  ) : (
+    <span class:list={['font-display font-semibold tracking-[-0.02em]', size === 'xl' ? 'text-[12vw] leading-none lg:text-[9rem]' : 'text-[1.35rem]']}>
+      {name}
+    </span>
+  )
+}

@@ -1,0 +1,26 @@
+---
+/**
+ * Sample concepts: fictional businesses rendered with the same blocks and
+ * schema as real client websites. Marked noindex and excluded from the sitemap.
+ */
+import SiteLayout from '@/layouts/SiteLayout.astro';
+import SectionRenderer from '@/components/SectionRenderer.astro';
+import { getSite, localSampleIds } from '@/lib/cms';
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const id of localSampleIds) {
+    const site = await getSite(id);
+    for (const page of site.pages) {
+      paths.push({ params: { sample: id, slug: page.slug || undefined }, props: { site, page } });
+    }
+  }
+  return paths;
+}
+
+const { site, page } = Astro.props;
+---
+
+<SiteLayout site={site} page={{ ...page, noindex: true }} basePath={`/samples/${Astro.params.sample}/`}>
+  <SectionRenderer sections={page.sections} site={site} />
+</SiteLayout>

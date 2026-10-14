@@ -1,0 +1,96 @@
+---
+import type { BlockOf } from '@/schema/site';
+import Section from '../ui/Section.astro';
+import SectionHeader from '../ui/SectionHeader.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  block: BlockOf<'pricing'>;
+}
+const { block } = Astro.props;
+const hid = block.id ? `${block.id}-title` : undefined;
+const money = (n: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: block.currency, maximumFractionDigits: 0 }).format(n);
+---
+
+<Section id={block.id} tone={block.tone} labelledBy={hid}>
+  <div class="container-site">
+    <SectionHeader id={hid} eyebrow={block.eyebrow} heading={block.heading} intro={block.intro} align="center" />
+    <ul class="grid gap-5 lg:grid-cols-3 lg:items-stretch">
+      {
+        block.plans.map((plan, i) => (
+          <li
+            class:list={[
+              'reveal relative flex flex-col rounded-card p-8 md:p-9',
+              plan.featured ? 'tone-inverse bg-bg text-ink shadow-[0_40px_80px_-40px_rgba(0,0,0,.55)]' : 'bg-surface ring-1 ring-line',
+            ]}
+            style={`transition-delay:${i * 90}ms`}
+            aria-labelledby={`plan-${plan.id}`}
+          >
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">{plan.label}</p>
+              {plan.featured && (
+                <span class="rounded-full bg-accent px-3 py-1 text-[0.7rem] font-semibold text-accent-ink">Recommended</span>
+              )}
+            </div>
+            <h3 id={`plan-${plan.id}`} class="mt-3 text-3xl">{plan.name}</h3>
+            <p class="mt-2 min-h-[3rem] text-sm leading-relaxed text-ink-soft">{plan.summary}</p>
+
+            <div class="mt-7 border-y border-line py-6">
+              <p class="flex items-baseline gap-2">
+                <span class="font-display text-5xl tracking-tight">{money(plan.setup.amount)}</span>
+                <span class="text-sm text-ink-soft">{plan.setup.label}</span>
+              </p>
+              {plan.recurring ? (
+                <p class="mt-3 flex flex-wrap items-baseline gap-x-2 text-sm">
+                  <span class="rounded-full bg-muted px-2.5 py-1 font-semibold">
+                    + {money(plan.recurring.amount)}/{plan.recurring.interval}
+                  </span>
+                  <span class="text-ink-soft">{plan.recurring.label}</span>
+                </p>
+              ) : (
+                <p class="mt-3 text-sm">
+                  <span class="rounded-full bg-muted px-2.5 py-1 font-semibold">No monthly fee</span>
+                </p>
+              )}
+            </div>
+
+            <ul class="mt-7 space-y-3 text-[0.95rem]">
+              {plan.included.map((f) => (
+                <li class="flex gap-3">
+                  <Icon name="check" size={18} class="mt-0.5 shrink-0 text-accent-text" />
+                  <span>{f}</span>
+                </li>
+              ))}
+              {plan.notIncluded.map((f) => (
+                <li class="flex gap-3 text-ink-soft">
+                  <Icon name="minus" size={18} class="mt-0.5 shrink-0 opacity-60" />
+                  <span>
+                    <span class="sr-only">Not included: </span>
+                    {f}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            {plan.bestFor && <p class="mt-7 text-sm text-ink-soft"><span class="font-semibold text-ink">Best for:</span> {plan.bestFor}</p>}
+
+            <div class="mt-auto pt-8">
+              <Button href={plan.cta.href} variant={plan.featured ? 'primary' : 'secondary'} class="w-full" arrow>
+                {plan.cta.label}
+              </Button>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      block.footnotes.length > 0 && (
+        <ul class="mx-auto mt-10 max-w-3xl space-y-1.5 text-center text-sm text-ink-soft">
+          {block.footnotes.map((n) => <li>{n}</li>)}
+        </ul>
+      )
+    }
+  </div>
+</Section>

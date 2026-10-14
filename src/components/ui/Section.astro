@@ -1,0 +1,20 @@
+---
+/** Wraps every block: handles anchor ids, background tone and vertical rhythm. */
+interface Props {
+  id?: string;
+  tone?: 'default' | 'muted' | 'inverse' | 'accent';
+  class?: string;
+  labelledBy?: string;
+  spacing?: 'normal' | 'tight' | 'none';
+}
+const { id, tone = 'default', class: className = '', labelledBy, spacing = 'normal' } = Astro.props;
+const pad = { normal: 'py-20 md:py-28', tight: 'py-12 md:py-16', none: '' }[spacing];
+---
+
+<section
+  id={id}
+  aria-labelledby={labelledBy}
+  class:list={[`tone-${tone}`, 'bg-bg text-ink', pad, className]}
+>
+  <slot />
+</section>
